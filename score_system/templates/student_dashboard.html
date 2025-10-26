@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>个人信息</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>姓名:</strong> {{ current_user.name }}</p>
+                <p><strong>学号:</strong> {{ current_user.username }}</p>
+                <p><strong>班级:</strong> {{ current_user.class_name }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h5>成绩查询</h5>
+            </div>
+            <div class="card-body">
+                {% if can_query %}
+                    {% if grades %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>课程名称</th>
+                                        <th>分数</th>
+                                        <th>学期</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for grade in grades %}
+                                    <tr>
+                                        <td>{{ grade.course_name }}</td>
+                                        <td>{{ grade.score }}</td>
+                                        <td>{{ grade.semester }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">暂无成绩记录</p>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning">
+                        当前不在成绩查询时间段内，无法查看成绩。
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
