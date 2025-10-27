@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>课程管理</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+        添加课程
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>课程代码</th>
+                <th>课程名称</th>
+                <th>开课学期</th>
+                <th>课程时间</th>
+                <th>成绩开放状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.课程代码 }}</td>
+                <td>{{ course.名称 }}</td>
+                <td>{{ course.开课学期 }}</td>
+                <td>{{ course.课程时间 }}</td>
+                <td>
+                    <span class="badge 
+                        {% if course.成绩开放状态 == '开放中' %}bg-success
+                        {% elif course.成绩开放状态 == '未设置' %}bg-secondary
+                        {% elif course.成绩开放状态 == '未开始' %}bg-warning
+                        {% else %}bg-danger{% endif %}">
+                        {{ course.成绩开放状态 }}
+                    </span>
+                    {% if course.成绩开放开始时间 and course.成绩开放结束时间 %}
+                    <br>
+                    <small class="text-muted">
+                        {{ course.成绩开放开始时间.strftime('%Y-%m-%d %H:%M') }} 至 
+                        {{ course.成绩开放结束时间.strftime('%Y-%m-%d %H:%M') }}
+                    </small>
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                            data-bs-toggle="modal" data-bs-target="#editCourseModal"
+                            data-code="{{ course.课程代码 }}"
+                            data-name="{{ course.名称 }}"
+                            data-semester="{{ course.开课学期 }}"
+                            data-time="{{ course.课程时间 }}">
+                        编辑
+                    </button>
+                    <a href="{{ url_for('set_query_period') }}?course_code={{ course.课程代码 }}" 
+                       class="btn btn-sm btn-outline-success">
+                        设置开放时间
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 添加课程模态框 -->
+<div class="modal fade" id="addCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加课程</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label">课程代码</label>
+                        <input type="text" class="form-control" name="course_code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">课程名称</label>
+                        <input type="text" class="form-control" name="course_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">开课学期</label>
+                        <input type="text" class="form-control" name="semester" placeholder="如：2023-2024学年第一学期" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">课程时间</label>
+                        <input type="text" class="form-control" name="course_time" placeholder="如：周一 1-2节，周三 3-4节" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑课程模态框 -->
+<div class="modal fade" id="editCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">编辑课程</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="course_code" id="edit_course_code">
+                    <div class="mb-3">
+                        <label class="form-label">课程名称</label>
+                        <input type="text" class="form-control" name="course_name" id="edit_course_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">开课学期</label>
+                        <input type="text" class="form-control" name="semester" id="edit_semester" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">课程时间</label>
+                        <input type="text" class="form-control" name="course_time" id="edit_course_time" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// 编辑课程模态框数据填充
+document.getElementById('editCourseModal').addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    document.getElementById('edit_course_code').value = button.getAttribute('data-code');
+    document.getElementById('edit_course_name').value = button.getAttribute('data-name');
+    document.getElementById('edit_semester').value = button.getAttribute('data-semester');
+    document.getElementById('edit_course_time').value = button.getAttribute('data-time');
+});
+</script>
+{% endblock %}

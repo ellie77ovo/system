@@ -8,9 +8,10 @@
                 <h5>个人信息</h5>
             </div>
             <div class="card-body">
-                <p><strong>姓名:</strong> {{ current_user.name }}</p>
-                <p><strong>学号:</strong> {{ current_user.username }}</p>
-                <p><strong>班级:</strong> {{ current_user.class_name }}</p>
+                <p><strong>姓名:</strong> {{ current_user.姓名 }}</p>
+                <p><strong>学号:</strong> {{ current_user.学号 }}</p>
+                <p><strong>班级:</strong> {{ current_user.班级 }}</p>
+                <p><strong>性别:</strong> {{ current_user.性别 }}</p>
             </div>
         </div>
     </div>
@@ -28,31 +29,152 @@
                                 <thead>
                                     <tr>
                                         <th>课程名称</th>
+                                        <th>课程代码</th>
                                         <th>分数</th>
                                         <th>学期</th>
+                                        <th>课程时间</th>
+                                        <th>授课教师</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for grade in grades %}
                                     <tr>
                                         <td>{{ grade.course_name }}</td>
-                                        <td>{{ grade.score }}</td>
+                                        <td>{{ grade.course_code }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if grade.score >= 90 %}bg-success
+                                                {% elif grade.score >= 80 %}bg-primary
+                                                {% elif grade.score >= 70 %}bg-info
+                                                {% elif grade.score >= 60 %}bg-warning
+                                                {% else %}bg-danger{% endif %}">
+                                                {{ grade.score }}
+                                            </span>
+                                        </td>
                                         <td>{{ grade.semester }}</td>
+                                        <td>{{ grade.course_time }}</td>
+                                        <td>{{ grade.teacher_name }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- 成绩统计 -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>成绩统计</h6>
+                                        <p class="mb-1">总课程数: {{ grades|length }}</p>
+                                        <p class="mb-1">平均分: {{ "%.2f"|format(grades|map(attribute='score')|sum / grades|length) }}</p>
+                                        <p class="mb-0">最高分: {{ grades|map(attribute='score')|max }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>查询状态</h6>
+                                        <p class="mb-0 text-success">
+                                            <i class="bi bi-check-circle"></i> 
+                                            当前可以查询成绩
+                                        </p>
+                                        <small class="text-muted">成绩查询时间由授课教师设置</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     {% else %}
-                        <p class="text-muted">暂无成绩记录</p>
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <h5 class="text-muted mt-3">暂无成绩记录</h5>
+                            <p class="text-muted">您还没有任何课程成绩记录，或者成绩尚未录入系统。</p>
+                        </div>
                     {% endif %}
                 {% else %}
                     <div class="alert alert-warning">
-                        当前不在成绩查询时间段内，无法查看成绩。
+                        <h5><i class="bi bi-clock"></i> 当前无法查询成绩</h5>
+                        <p class="mb-0">
+                            当前不在成绩查询时间段内，无法查看成绩。<br>
+                            请等待授课教师设置的成绩开放时间，或联系授课教师。
+                        </p>
+                    </div>
+                    
+                    <!-- 显示所有课程但不显示成绩 -->
+                    <div class="mt-4">
+                        <h6>我的课程列表</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>课程名称</th>
+                                        <th>课程代码</th>
+                                        <th>学期</th>
+                                        <th>课程时间</th>
+                                        <th>授课教师</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for course in all_courses %}
+                                    <tr>
+                                        <td>{{ course.名称 }}</td>
+                                        <td>{{ course.课程代码 }}</td>
+                                        <td>{{ course.开课学期 }}</td>
+                                        <td>{{ course.课程时间 }}</td>
+                                        <td>{{ course.教师.姓名 }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">成绩未开放</span>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">暂无课程信息</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.75em;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-weight: 600;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.bi {
+    margin-right: 0.5rem;
+}
+</style>
 {% endblock %}

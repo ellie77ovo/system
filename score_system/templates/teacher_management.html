@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>教师管理</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+        添加教师
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>工号</th>
+                <th>姓名</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td>{{ teacher.工号 }}</td>
+                <td>{{ teacher.姓名 }}</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                            data-bs-toggle="modal" data-bs-target="#editTeacherModal"
+                            data-id="{{ teacher.工号 }}" data-name="{{ teacher.姓名 }}">
+                        编辑
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                            data-bs-toggle="modal" data-bs-target="#deleteTeacherModal"
+                            data-id="{{ teacher.工号 }}" data-name="{{ teacher.姓名 }}">
+                        删除
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- 添加教师模态框 -->
+<div class="modal fade" id="addTeacherModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加教师</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label">工号</label>
+                        <input type="text" class="form-control" name="teacher_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑教师模态框 -->
+<div class="modal fade" id="editTeacherModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">编辑教师</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="teacher_id" id="edit_teacher_id">
+                    <div class="mb-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-control" name="name" id="edit_teacher_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">新密码（留空则不修改）</label>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 删除教师模态框 -->
+<div class="modal fade" id="deleteTeacherModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">删除教师</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="teacher_id" id="delete_teacher_id">
+                    <p>确定要删除教师 <span id="delete_teacher_name" class="fw-bold"></span> 吗？此操作不可逆！</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">删除</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// 编辑教师模态框数据填充
+document.getElementById('editTeacherModal').addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    document.getElementById('edit_teacher_id').value = button.getAttribute('data-id');
+    document.getElementById('edit_teacher_name').value = button.getAttribute('data-name');
+});
+
+// 删除教师模态框数据填充
+document.getElementById('deleteTeacherModal').addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    document.getElementById('delete_teacher_id').value = button.getAttribute('data-id');
+    document.getElementById('delete_teacher_name').textContent = button.getAttribute('data-name');
+});
+</script>
+{% endblock %}

@@ -6,6 +6,15 @@
     <div class="col-md-4">
         <div class="card text-center">
             <div class="card-body">
+                <h5 class="card-title">课程管理</h5>
+                <p class="card-text">管理教授的课程信息</p>
+                <a href="{{ url_for('course_management') }}" class="btn btn-primary">进入</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
                 <h5 class="card-title">成绩导入</h5>
                 <p class="card-text">单个或批量导入学生成绩</p>
                 <a href="{{ url_for('upload_grades') }}" class="btn btn-primary">进入</a>
@@ -19,6 +28,47 @@
                 <p class="card-text">设置学生可查询成绩的时间段</p>
                 <a href="{{ url_for('set_query_period') }}" class="btn btn-primary">进入</a>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- 显示教师课程概览 -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h4>我的课程</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>课程代码</th>
+                        <th>课程名称</th>
+                        <th>开课学期</th>
+                        <th>课程时间</th>
+                        <th>成绩开放状态</th>
+                        <th>成绩数量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ course.课程代码 }}</td>
+                        <td>{{ course.名称 }}</td>
+                        <td>{{ course.开课学期 }}</td>
+                        <td>{{ course.课程时间 }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if course.成绩开放状态 == '开放中' %}bg-success
+                                {% elif course.成绩开放状态 == '未设置' %}bg-secondary
+                                {% elif course.成绩开放状态 == '未开始' %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ course.成绩开放状态 }}
+                            </span>
+                        </td>
+                        <td>{{ course.scores|length }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

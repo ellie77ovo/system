@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>成绩查询时间设置</h2>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>选择课程</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for course in courses %}
+                    <a href="{{ url_for('set_query_period', course_code=course.课程代码) }}" 
+                       class="list-group-item list-group-item-action {% if selected_course and selected_course.课程代码 == course.课程代码 %}active{% endif %}">
+                        <div>
+                            <strong>{{ course.名称 }}</strong>
+                            <br>
+                            <small>{{ course.课程代码 }} | {{ course.开课学期 }}</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        {% if selected_course %}
+        <div class="card">
+            <div class="card-header">
+                <h5>设置查询时间 - {{ selected_course.名称 }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="course_code" value="{{ selected_course.课程代码 }}">
+                    
+                    <!-- 在 query_period.html 中修正时间字段的引用 -->
+                    <div class="mb-3">
+                        <label class="form-label">成绩开放开始时间</label>
+                        <input type="datetime-local" class="form-control" name="start_date" 
+                            value="{{ selected_course.成绩开放开始时间.strftime('%Y-%m-%dT%H:%M') if selected_course.成绩开放开始时间 else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">成绩开放结束时间</label>
+                        <input type="datetime-local" class="form-control" name="end_date" 
+                            value="{{ selected_course.成绩开放结束时间.strftime('%Y-%m-%dT%H:%M') if selected_course.成绩开放结束时间 else '' }}">
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <small>
+                            <strong>说明：</strong><br>
+                            - 设置学生可以查询该课程成绩的时间段<br>
+                            - 如果留空，则表示不设置开放时间，学生无法查询该课程成绩<br>
+                            - 当前状态: 
+                            <span class="badge 
+                                {% if selected_course.成绩开放状态 == '开放中' %}bg-success
+                                {% elif selected_course.成绩开放状态 == '未设置' %}bg-secondary
+                                {% elif selected_course.成绩开放状态 == '未开始' %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ selected_course.成绩开放状态 }}
+                            </span>
+                        </small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">保存设置</button>
+                    <a href="{{ url_for('set_query_period') }}" class="btn btn-secondary">取消</a>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center">
+                <p class="text-muted">请从左侧选择要设置查询时间的课程</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

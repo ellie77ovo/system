@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>成绩导入</h2>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>单个成绩录入</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="single_grade" value="true">
+                    <div class="mb-3">
+                        <label class="form-label">学生学号</label>
+                        <input type="text" class="form-control" name="student_id" required
+                               placeholder="请输入学生学号">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">课程</label>
+                        <select class="form-select" name="course_code" required>
+                            <option value="">请选择课程</option>
+                            {% for course in courses %}
+                            <option value="{{ course.课程代码 }}">{{ course.名称 }} ({{ course.课程代码 }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">分数</label>
+                        <input type="number" class="form-control" name="score" min="0" max="100" step="0.1" required
+                               placeholder="0-100之间的分数">
+                    </div>
+                    <button type="submit" class="btn btn-primary">录入成绩</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>批量导入成绩</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">选择文件</label>
+                        <input type="file" class="form-control" name="file" accept=".xlsx,.csv" required>
+                        <div class="form-text">支持 Excel (.xlsx) 和 CSV 格式</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="alert alert-info">
+                            <h6>文件格式要求：</h6>
+                            <ul class="mb-0 small">
+                                <li><strong>学号</strong> - 学生学号（必须存在）</li>
+                                <li><strong>课程代码</strong> - 课程代码（必须存在）</li>
+                                <li><strong>分数</strong> - 成绩分数，0-100之间（必须存在）</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-upload"></i> 导入成绩
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6>下载模板</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">下载成绩导入模板文件，按照格式填写后上传</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary" onclick="downloadTemplate('excel')">
+                        <i class="bi bi-file-earmark-excel"></i> Excel 模板
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="downloadTemplate('csv')">
+                        <i class="bi bi-file-earmark-text"></i> CSV 模板
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 使用说明 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6>使用说明</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>单个成绩录入：</h6>
+                        <ul class="small">
+                            <li>输入学生学号、选择课程和分数</li>
+                            <li>系统会自动检查学生和课程是否存在</li>
+                            <li>如果该学生该课程已有成绩，则会更新原有成绩</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>批量导入：</h6>
+                        <ul class="small">
+                            <li>下载模板文件，按照格式填写数据</li>
+                            <li>选择填写好的文件进行上传</li>
+                            <li>系统会自动处理重复记录（更新）和新记录（插入）</li>
+                            <li>导入完成后会显示成功导入的记录数量</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function downloadTemplate(type) {
+    const templateData = [
+        ['学号', '课程代码', '分数'],
+        ['2023001', 'C0001', '85.5'],
+        ['2023002', 'C0001', '92.0'],
+        ['2023003', 'C0001', '78.5'],
+        ['2023001', 'C0002', '88.0'],
+        ['2023002', 'C0002', '95.5']
+    ];
+
+    if (type === 'csv') {
+        // 生成CSV内容
+        const csvContent = templateData.map(row => 
+            row.map(cell => `"${cell}"`).join(',')
+        ).join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', '成绩导入模板.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        // 对于Excel，提示用户手动创建
+        alert('请创建一个Excel文件，包含以下列：学号、课程代码、分数。\n\n可以参考CSV模板的格式。');
+    }
+}
+
+// 表单验证
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            // 显示加载状态
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>处理中...';
+            submitButton.disabled = true;
+            
+            // 3秒后恢复按钮状态（防止长时间卡住）
+            setTimeout(() => {
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            }, 3000);
+        });
+    });
+});
+</script>
+
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+.btn {
+    border-radius: 0.375rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+</style>
+{% endblock %}
